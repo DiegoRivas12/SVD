@@ -152,6 +152,156 @@ LAPACK:                     σ₁ = 1.4770, σ₂ = 0.6770
 
 ### Paso 5: Demostración del Error
 
+---
+
+### Paso 5.1: Generación de las Matrices del Ejemplo Incorrecto
+
+Para entender de dónde provienen las matrices del ejemplo dado, debemos **forzar** los valores singulares incorrectos y calcular las matrices U y V correspondientes.
+
+#### Valores singulares forzados del ejemplo:
+```
+σ₁ = 1.62  (requiere λ₁ = 2.62)
+σ₂ = 1.00  (requiere λ₂ = 1.00)
+```
+
+#### Cálculo de vectores con valores incorrectos
+
+**Para λ₁ = 2.62 (FORZADO):**
+
+Resolvemos (A^T × A - 2.62·I)v₁ = 0:
+```
+[ 1.00-2.62   -0.80     ] [x]   [0]
+[-0.80        1.64-2.62 ] [y] = [0]
+
+[-1.62   -0.80] [x]   [0]
+[-0.80   -0.98] [y] = [0]
+```
+
+De la segunda ecuación:
+```
+-0.80x - 0.98y = 0
+x = -0.98y / 0.80 = -1.225y
+```
+
+Tomando y = 1:
+```
+v₁_no_normalizado = [-1.225]
+                    [ 1.000]
+
+||v₁|| = √(1.225² + 1²) = √2.5006 = 1.581
+
+v₁ = [-1.225/1.581]   [-0.78]
+     [ 1.000/1.581] = [ 0.62]  ← Valores del ejemplo
+```
+
+**Para λ₂ = 1.00 (FORZADO):**
+
+Resolvemos (A^T × A - 1.00·I)v₂ = 0:
+```
+[ 0.00   -0.80] [x]   [0]
+[-0.80    0.64] [y] = [0]
+```
+
+De la primera ecuación:
+```
+-0.80y = 0  →  pero esto da y = 0 (inconsistente)
+```
+
+De la segunda ecuación:
+```
+-0.80x + 0.64y = 0
+x = 0.80y
+```
+
+Tomando y = -1 (ajuste de signo para coincidir con ejemplo):
+```
+v₂_no_normalizado = [-0.80]
+                    [-1.00]
+
+||v₂|| = √(0.64 + 1) = √1.64 = 1.281
+
+v₂ = [-0.80/1.281]   [-0.62]
+     [-1.00/1.281] = [-0.78]  ← Valores del ejemplo
+```
+
+#### Matriz V del ejemplo (con valores forzados):
+```
+V = [-0.78   -0.62]
+    [ 0.62   -0.78]
+
+V^T = [-0.78    0.62]
+      [-0.62   -0.78]  ← Coincide con el ejemplo dado
+```
+
+#### Cálculo de U con valores singulares incorrectos
+
+Usando uᵢ = (1/σᵢ) × A × vᵢ con los σ incorrectos:
+
+**Para u₁:**
+```
+A × v₁ = [ 1.0   -0.8] × [-0.78]
+         [ 0.0    1.0]   [ 0.62]
+
+       = [-1.276]
+         [ 0.62]
+
+u₁ = (1/1.62) × [-1.276]   [-0.79]
+                [ 0.62 ] = [ 0.38]  ← Valores del ejemplo
+```
+
+**Para u₂:**
+```
+A × v₂ = [ 1.0   -0.8] × [-0.62]
+         [ 0.0    1.0]   [-0.78]
+
+       = [ 0.00]
+         [-0.78]
+
+u₂ = (1/1.00) × [ 0.00]   [ 0.00]
+                [-0.78] = [-0.78]  ← Valores del ejemplo
+```
+
+#### Matrices del ejemplo incorrecto:
+```
+U = [-0.79    0.00]
+    [ 0.38   -0.78]  ← Coincide con el ejemplo dado
+
+Σ = [1.62   0.00]
+    [0.00   1.00]
+
+V^T = [-0.78    0.62]
+      [-0.62   -0.78]
+```
+
+#### Verificación con valores incorrectos:
+
+Si multiplicamos estas matrices:
+```
+U × Σ × V^T = [-0.79    0.00] × [1.62   0.00] × [-0.78    0.62]
+              [ 0.38   -0.78]   [0.00   1.00]   [-0.62   -0.78]
+```
+
+**El resultado NO reconstruye exactamente la matriz A original**, porque los valores singulares no son los correctos matemáticamente.
+
+---
+
+### Resumen del error en cascada:
+```
+Autovalores incorrectos
+        ↓
+Valores singulares incorrectos  
+        ↓
+Vectores V incorrectos
+        ↓
+Vectores U incorrectos
+        ↓
+Reconstrucción A imprecisa
+```
+
+**Conclusión**: Las matrices del ejemplo (U, Σ, V^T) solo existen porque se **forzaron** valores singulares que no son solución de la ecuación característica de A^T·A. Aunque las matrices tienen la estructura correcta de una SVD, no representan la verdadera descomposición de la matriz A dada.
+
+---
+
 **Verificación de los valores incorrectos:**
 ```
 Para λ = 2.62:
