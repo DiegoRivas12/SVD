@@ -61,8 +61,8 @@ gcc -o svd_example svd_example.c -llapack -lblas -lm
 
 El programa calcula la SVD de la matriz:
 ```
-A = [ 1.0   -0.8 ]
-    [ 0.0    1.0 ]
+A = [ 1.0   -0.8 ]   
+    [ 0.0    1.0 ]       
 ```
 
 **Salida del programa:**
@@ -154,6 +154,26 @@ LAPACK:                     σ₁ = 1.4770, σ₂ = 0.6770
 
 ---
 
+### Datos dados del ejemplo
+```bash
+A = [ 1.0   -0.8 ]   
+    [ 0.0    1.0 ]   
+
+U = [ −0.79 0   −0.62]
+    [−0.38 −0.78 0.49]
+    [−0.48 0.62  0.62]
+
+Σ = [1.62 0   0]
+    [0    1.0 0]
+    [0    0   0]
+
+
+
+V⊤ = [−0,78 0,62]
+     [−0,62 −0,78]
+```
+
+Solo usaremos las dimensiones de 2x2 para que no haya problemas con las dimensiones de las matrices.
 ### Paso 5.1: Generación de las Matrices del Ejemplo Incorrecto
 
 Para entender de dónde provienen las matrices del ejemplo dado, debemos **forzar** los valores singulares incorrectos y calcular las matrices U y V correspondientes.
